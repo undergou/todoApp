@@ -29,20 +29,26 @@ body {
     box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
-.action-todo {
+.action-todo, .action-cancel-todo {
     position: absolute;
-    top:10px;
     right:5px;
     display: none;
     color: rgba(0,0,0,0.6);
     cursor: pointer;
+    font-size: 16px;
+}
+.action-todo{
+    top: 2px;
+}
+.action-cancel-todo {
+    bottom: 2px;
 }
 
-.action-todo:hover{
+.action-todo:hover, .action-cancel-todo:hover{
     opacity: 0.8;
 }
 
-.todo:hover .action-todo{
+.todo:hover .action-todo, .todo:hover .action-cancel-todo{
     display: block;
 }
 

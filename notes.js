@@ -4,6 +4,7 @@ var Todo = React.createClass ({
         return (
             <div className="todo" style={style}>
           <span className="action-todo" onClick={this.props.color == '#FFFF00' ? this.props.onChangeToDone : this.props.color == '#00FF00' ? this.props.onChangeToArchive :this.props.onDelete}> {this.props.color == '#FFFF00' ? 'Done' : this.props.color == '#00FF00'?'Archive':'x'}</span>
+          <span className="action-cancel-todo" onClick={this.props.color == '#B2B2B2' ? this.props.onChangeCancelArchive : this.props.color == '#00FF00' ? this.props.onChangeCancelDone: ''}> {this.props.color == '#B2B2B2' ? 'To Done' : this.props.color == '#00FF00' ? 'To Active': ''}</span>
                 {this.props.children}
             </div>
         );
@@ -72,6 +73,7 @@ var TodoActive = React.createClass({
 var TodoDone = React.createClass({
     render:function(){
         var onChangeToArchive = this.props.onChangeToArchive;
+        var onChangeCancelDone = this.props.onChangeCancelDone;
         return (
                 <div className="todo-done">
                 Done:
@@ -80,6 +82,7 @@ var TodoDone = React.createClass({
                         return   (
                         <Todo key={todo.id}
                         onChangeToArchive={onChangeToArchive.bind(null, todo)}
+                        onChangeCancelDone={onChangeCancelDone.bind(null, todo)}
                         color='#00FF00'>
                             {todo.text}
                         </Todo>
@@ -94,6 +97,7 @@ var TodoDone = React.createClass({
 var TodoArchive = React.createClass({
     render:function(){
         var onTodoDelete = this.props.onTodoDelete;
+        var onChangeCancelArchive = this.props.onChangeCancelArchive;
         return (
                 <div className="todo-archive">
                 Archive:
@@ -103,8 +107,11 @@ var TodoArchive = React.createClass({
                         <Todo
                             key={todo.id}
                             color='#B2B2B2'
-                            onDelete={onTodoDelete.bind(null, todo)}>
+                            onDelete={onTodoDelete.bind(null, todo)}
+                            onChangeCancelArchive={onChangeCancelArchive.bind(null, todo)}
+                            >
                             {todo.text}
+
                         </Todo>
                         );
                 })
@@ -184,14 +191,41 @@ var TodosApp = React.createClass ({
         this.setState({ todosDone: newTodosDone });
         this.setState({ todosArchive: newTodosArchive });
     },
+    handleCancelArchive: function(todo){
+        var todoId = todo.id;
+        var newTodosArchive = this.state.todosArchive.filter(function(todo) {
+            return todo.id !== todoId;
+        });
+        var newTodoDone = this.state.todosArchive.filter(function(todo) {
+            return todo.id == todoId;
+        });
+        var newTodosDone = this.state.todosDone;
+        newTodosDone.unshift(newTodoDone[0]);
+        this.setState({ todosDone: newTodosDone });
+        this.setState({ todosArchive: newTodosArchive });
+    },
+    handleCancelDone: function(todo){
+        var todoId = todo.id;
+        var newTodosDone = this.state.todosDone.filter(function(todo) {
+            return todo.id !== todoId;
+        });
+        var newTodoActive = this.state.todosDone.filter(function(todo) {
+            return todo.id == todoId;
+        });
+        var newTodosActive = this.state.todosActive;
+        newTodosActive.unshift(newTodoActive[0]);
+        this.setState({ todosDone: newTodosDone });
+        this.setState({ todosActive: newTodosActive });
+    },
     render: function() {
         return (
             <div className="todos-app">
                     <TodoEditor onTodoAdd={this.handleTodoAdd}/>
                     <div className="todo-list">
                         <TodoActive todosActive={this.state.todosActive} todosDone={this.state.todosDone} onChangeToDone={this.handleChangeToDone}/>
-                        <TodoDone todosDone={this.state.todosDone} todosArchive={this.state.todosArchive} onChangeToArchive={this.handleChangeToArchive}/>
-                        <TodoArchive todosArchive={this.state.todosArchive} onTodoDelete={this.handleTodoDelete}/>
+                        <TodoDone todosDone={this.state.todosDone} todosArchive={this.state.todosArchive} onChangeToArchive={this.handleChangeToArchive}
+                        onChangeCancelDone={this.handleCancelDone}/>
+                        <TodoArchive todosArchive={this.state.todosArchive} onTodoDelete={this.handleTodoDelete} onChangeCancelArchive={this.handleCancelArchive}/>
                     </div>
             </div>
         );
